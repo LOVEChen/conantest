@@ -1,18 +1,18 @@
-const int HYUNDAI_MAX_STEER = 255;             // like stock
+const int HYUNDAI_MAX_STEER = 409;             // like stock
 const int HYUNDAI_MAX_RT_DELTA = 112;          // max delta torque allowed for real time checks
 const uint32_t HYUNDAI_RT_INTERVAL = 250000;   // 250ms between real time checks
-const int HYUNDAI_MAX_RATE_UP = 3;
-const int HYUNDAI_MAX_RATE_DOWN = 7;
+const int HYUNDAI_MAX_RATE_UP = 5;
+const int HYUNDAI_MAX_RATE_DOWN = 10;
 const int HYUNDAI_DRIVER_TORQUE_ALLOWANCE = 50;
 const int HYUNDAI_DRIVER_TORQUE_FACTOR = 2;
 const int HYUNDAI_STANDSTILL_THRSLD = 30;  // ~1kph
 const CanMsg HYUNDAI_TX_MSGS[] = {
   {832, 0, 8},{832, 1, 8},  // LKAS11 Bus 0, 1
-  {1265, 0, 4}, //{1265, 1, 4}, {1265, 2, 4},  // CLU11 Bus 0, 1, 2
-  //{1157, 0, 4}, // LFAHDA_MFC Bus 0
+  {1265, 0, 4},{1265, 1, 4}, {1265, 2, 4},  // CLU11 Bus 0, 1, 2
+  {1157, 0, 4}, // LFAHDA_MFC Bus 0
   {593, 2, 8},  // MDPS12, Bus 2
   // {1056, 0, 8}, //   SCC11,  Bus 0
-  //{1057, 0, 8},  //   SCC12,  Bus 0
+  {1057, 0, 8},  //   SCC12,  Bus 0
 
   // {1290, 0, 8}, //   SCC13,  Bus 0
   // {905, 0, 8},  //   SCC14,  Bus 0
@@ -33,7 +33,7 @@ AddrCheckStruct hyundai_rx_checks[] = {
 //  /  {.msg = {{902, 0, 8, .max_counter = 0U,  .expected_timestep = 10000U}}},
   //{.msg = {{916, 0, 8, .check_checksum = true, .max_counter = 7U, .expected_timestep = 10000U}}},
 //  /  {.msg = {{916, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 10000U}}},
-  {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+  {.msg = {{1057, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}}},
 };
 
 const int HYUNDAI_RX_CHECK_LEN = sizeof(hyundai_rx_checks) / sizeof(hyundai_rx_checks[0]);
