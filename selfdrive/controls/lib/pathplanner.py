@@ -102,7 +102,16 @@ class PathPlanner():
           value = p_limit
       elif  value < m_limit:
           value = m_limit
-      return value    
+      return value
+
+  def limit_ctrl1(self, value, limit1, limit2, offset ):
+      p_limit = offset + limit1
+      m_limit = offset - limit2
+      if value > p_limit:
+          value = p_limit
+      elif  value < m_limit:
+          value = m_limit
+      return value     
 
   def setup_mpc(self):
     self.libmpc = libmpc_py.libmpc
@@ -199,6 +208,8 @@ class PathPlanner():
     steeringPressed  = sm['carState'].steeringPressed
     steeringTorque = sm['carState'].steeringTorque
     active = sm['controlsState'].active
+    model_sum = sm['controlsState'].modelSum
+
     v_ego_kph = v_ego * CV.MS_TO_KPH
 
     self.steerRatio = sm['liveParameters'].steerRatio
@@ -254,8 +265,8 @@ class PathPlanner():
                         ((steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or \
                           (steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right))
 
-      blindspot_detected = ((sm['carState'].leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
-                            (sm['carState'].rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))                          
+      blindspot_detected = ((leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
+                            (rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))                          
 
       lane_change_prob = self.LP.l_lane_change_prob + self.LP.r_lane_change_prob
 
@@ -349,11 +360,30 @@ class PathPlanner():
         if delta_steer < 0:
           self.angle_steers_des_mpc = self.limit_ctrl( org_angle_steers_des, limit_steers, angle_steers )
 
-    elif v_ego_kph < 30:  # 30
-        xp = [5,15,30]
-        fp2 = [1,3,5]
-        limit_steers = interp( v_ego_kph, xp, fp2 )
-        self.angle_steers_des_mpc = self.limit_ctrl( org_angle_steers_des, limit_steers, angle_steers )
+    elif v_ego_kph < 10:  # 30
+      xp = [5,10]
+      fp2 = [1,5]
+      limit_steers = interp( v_ego_kph, xp, fp2 )
+      self.angle_steers_des_mpc = self.limit_ctrl( org_angle_steers_des, limit_steers, angle_steers )
+
+    elif v_ego_kph > 60: 
+      pass
+    elif abs(angle_steers) > 10: # angle steer > 10
+      """
+      #1. 방법
+      xp = [-50,-30,-15,-10,-5,0,5,10,15,30,50]
+      fp1 = [-90,-52,-35,-28,-12,0,12,28,35,52,90]
+      self.angle_steers_des_mpc = interp( model_sum, xp, fp1 )  # +
+      """
+
+      # 2.방법
+      xp = [-10,-5,0,5,10]    # 5 조향각 약12도, 10=>28 15=>35, 30=>52
+      fp1 = [1,3,10,20,10]    # +
+      fp2 = [10,20,10,3,1]    # -
+      limit_steers1 = interp( model_sum, xp, fp1 )  # +
+      limit_steers2 = interp( model_sum, xp, fp2 )  # -
+      self.angle_steers_des_mpc = self.limit_ctrl1( org_angle_steers_des, limit_steers1, limit_steers2, angle_steers )
+      
 
     #  Check for infeasable MPC solution
     mpc_nans = any(math.isnan(x) for x in self.mpc_solution[0].delta)

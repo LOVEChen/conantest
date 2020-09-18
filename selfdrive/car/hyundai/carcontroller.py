@@ -159,14 +159,14 @@ class CarController():
     param.STEER_DELTA_UP = min( param.STEER_DELTA_UP, nUP)
     param.STEER_DELTA_DOWN = min( param.STEER_DELTA_DOWN, nDN )
 
-    sec_pval = 3  # 0.5 sec 운전자 => 오파  (sec)
     sec_mval = 10.0  # 오파 => 운전자.  (sec)
+    sec_pval = 3  #  운전자 => 오파  (sec)
     # streer over check
     if path_plan.laneChangeState != LaneChangeState.off:
       self.steer_torque_over_timer = 0
     elif CS.out.leftBlinker or CS.out.rightBlinker:
       sec_mval = 2  # 오파 => 운전자.
-      sec_pval = 10
+      sec_pval = 10 # 운전자 => 오파  (sec)
 
     if v_ego_kph > 5 and CS.out.steeringPressed:  #사용자 핸들 토크
       if abs_angle_steers > 5 and CS.out.steeringTorque < -STEER_THRESHOLD:   #right
@@ -284,7 +284,7 @@ class CarController():
     # send mdps12 to LKAS to prevent LKAS error if no cancel cmd
     can_sends.append( create_mdps12(self.packer, frame, CS.mdps12) )
 
-    str_log1 = 'torg:{:5.0f}/{:5.0f}/{:5.0f}  CV={:5.1f}'.format(  apply_steer, new_steer, dst_steer, self.model_speed  )
+    str_log1 = 'torg:{:5.0f}/{:5.0f}/{:5.0f}  CV={:5.1f}/{:5.1f}'.format(  apply_steer, new_steer, dst_steer, self.model_speed, self.model_sum  )
     str_log2 = 'limit={:.0f} tm={:.1f} '.format( apply_steer_limit, self.timer1.sampleTime()  )
     trace1.printf( '{} {}'.format( str_log1, str_log2 ) )
 

@@ -712,7 +712,10 @@ static void ui_draw_debug(UIState *s)
   ui_print( s, x_pos, y_pos+250, "lW:%.2f", scene.pathPlan.laneWidth );
   ui_print( s, x_pos, y_pos+300, "prob:%.2f, %.2f", scene.pathPlan.lProb, scene.pathPlan.rProb );
   ui_print( s, x_pos, y_pos+350, "Poly:%.2f, %.2f", scene.pathPlan.lPoly, scene.pathPlan.rPoly );
-  ui_print( s, x_pos, y_pos+400, "awareness:%.2f" , scene.awareness_status);
+  ui_print( s, x_pos, y_pos+400, "model_sum:%.1f" , scene.model_sum);
+  ui_print( s, x_pos, y_pos+450, "awareness:%.2f" , scene.awareness_status);
+
+
 
 
   ui_print( s, 0, 1020, "%s", scene.alert.text1 );
@@ -721,7 +724,7 @@ static void ui_draw_debug(UIState *s)
 
   if( scene.params.nOpkrAccelProfile == 0 )  return;
   NVGcolor nColor = COLOR_WHITE;
-  x_pos = viz_speed_x + 320;
+  x_pos = viz_speed_x + 300;
   y_pos = 120;
 
   nvgFontSize(s->vg, 30);
@@ -733,19 +736,19 @@ static void ui_draw_debug(UIState *s)
     default :  sprintf( str_msg, "%d", scene.params.nOpkrAccelProfile ); nColor = COLOR_WHITE;  break;
   }
   nvgFillColor(s->vg, nColor);
-  ui_print( s, x_pos+50, y_pos+0, "%s", str_msg );
+  ui_print( s, x_pos, y_pos+0, "%s", str_msg );
 
   nvgFontSize(s->vg, 80);
   switch( scene.cruiseState.modeSel  )
   {
     case 0: strcpy( str_msg, "0.OP MODE" ); nColor = COLOR_WHITE; break;
-    case 1: strcpy( str_msg, "1.CURVE MODE" );    nColor = nvgRGBA(200, 200, 255, 255);  break;
-    case 2: strcpy( str_msg, "2.FRONT CAR" );  nColor = nvgRGBA(200, 255, 255, 255);  break;
+    case 1: strcpy( str_msg, "1.CURVE" );    nColor = nvgRGBA(200, 200, 255, 255);  break;
+    case 2: strcpy( str_msg, "2.FWD CAR" );  nColor = nvgRGBA(200, 255, 255, 255);  break;
     case 3: strcpy( str_msg, "3.HYUNDAI" );  nColor = nvgRGBA(200, 255, 255, 255);  break;
-    default :  sprintf( str_msg, "%d", scene.cruiseState.modeSel ); nColor = COLOR_WHITE;  break;
+    default :  sprintf( str_msg, "%d.NORMAL", scene.cruiseState.modeSel ); nColor = COLOR_WHITE;  break;
   }
   nvgFillColor(s->vg, nColor);  
-  ui_print( s, x_pos, y_pos+80, str_msg );  
+  ui_print( s, x_pos, y_pos+80, str_msg );
 }
 
 
